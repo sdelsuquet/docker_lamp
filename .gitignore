@@ -6,3 +6,9 @@ DocumentRoot/*
 !DocumentRoot/errors
 docker/nodejs/node_modules/*
 NodeJsApp/*
+
+redis-data
+!redis-data/.gitkeep
+
+dump
+!dump/.gitkeep
