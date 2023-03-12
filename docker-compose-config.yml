@@ -1,0 +1,158 @@
+name: my_lab
+services:
+  db:
+    build:
+      context: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/mysql
+      dockerfile: Dockerfile
+    command:
+    - --default-authentication-plugin=mysql_native_password
+    container_name: my_lab_db
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_DATABASE: lamp
+      MYSQL_PASSWORD: docker
+      MYSQL_ROOT_PASSWORD: Bigpass
+      MYSQL_USER: docker
+      TZ: Europe/Paris
+    networks:
+      lamp: null
+    ports:
+    - mode: ingress
+      target: 3306
+      published: "3306"
+      protocol: tcp
+    restart: always
+    volumes:
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/dump
+      target: /docker-entrypoint-initdb.d
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/mysql/conf
+      target: /etc/mysql/conf.d
+      bind:
+        create_host_path: true
+    - type: volume
+      source: persistent
+      target: /var/lib/mysql
+      volume: {}
+  mailhog:
+    container_name: my_lab_mailhog
+    image: mailhog/mailhog
+    networks:
+      lamp: null
+    ports:
+    - mode: ingress
+      target: 8025
+      published: "8025"
+      protocol: tcp
+    - mode: ingress
+      target: 1025
+      published: "1025"
+      protocol: tcp
+    restart: always
+  nodejs:
+    build:
+      context: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/nodejs
+      dockerfile: Dockerfile
+    container_name: my_lab_node
+    depends_on:
+      db:
+        condition: service_started
+    networks:
+      lamp: null
+    ports:
+    - mode: ingress
+      target: 3030
+      published: "3030"
+      protocol: tcp
+  phpmyadmin:
+    container_name: my_lab_phpmyadmin
+    environment:
+      MYSQL_DATABASE: lamp
+      MYSQL_PASSWORD: docker
+      MYSQL_USER: docker
+    image: phpmyadmin/phpmyadmin
+    links:
+    - db:db
+    networks:
+      lamp: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: "8082"
+      protocol: tcp
+    restart: always
+  redis:
+    command:
+    - redis-server
+    - --requirepass
+    - REDIS6
+    container_name: my_lab_redis
+    environment:
+      REDIS_REPLICATION_MODE: master
+    image: redis:alpine
+    networks:
+      lamp: null
+    ports:
+    - mode: ingress
+      target: 6379
+      published: "6379"
+      protocol: tcp
+    restart: always
+    volumes:
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/redis-data
+      target: /var/lib/redis
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/redis/redis.conf
+      target: /usr/local/etc/redis/redis.conf
+      bind:
+        create_host_path: true
+  web:
+    build:
+      context: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/apache
+      dockerfile: Dockerfile
+      args:
+        php_version: 7.4-apache-bullseye
+    container_name: my_lab_web
+    depends_on:
+      db:
+        condition: service_started
+    networks:
+      lamp: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: "8080"
+      protocol: tcp
+    - mode: ingress
+      target: 443
+      published: "8081"
+      protocol: tcp
+    restart: always
+    volumes:
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/DocumentRoot
+      target: /app
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/apache/errors
+      target: /errors
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /home/sdelsuquet/Projects_GIT/Perso/github/sdelsuquet/docker_lamp/docker/php/custom.ini
+      target: /usr/local/etc/php/conf.d/custom.ini
+      bind:
+        create_host_path: true
+networks:
+  lamp:
+    name: my_lab_lamp
+volumes:
+  persistent:
+    name: my_lab_persistent

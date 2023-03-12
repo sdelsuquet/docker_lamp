@@ -8,7 +8,7 @@
 BASE_DIR="/etc/apache2/sites-available"
 BASE_DIR_CONF="/etc/apache2/conf-available"
 
-for FILEPATH in $BASE_DIR/*; do
+for FILEPATH in ${BASE_DIR}/*; do
   if [[ -f "$FILEPATH" ]]; then
     CONF=$(basename "$FILEPATH")
     a2ensite ${CONF}
@@ -21,10 +21,10 @@ for FILEPATH in $BASE_DIR/*; do
   fi
 done
 
-for FILEPATH in BASE_DIR_CONF/*; do
-  if [[ -f "$FILEPATH" ]]; then
-    CONF=$(basename "$FILEPATH")
-    a2enconf ${CONF}
+for FILEPATH in "${BASE_DIR_CONF}/*"; do
+  if [[ -f "${FILEPATH}" ]]; then
+    CONF=$(basename "${FILEPATH}")
+    a2enconf "${CONF}"
     if [ $? != 0 ]
     then
       echo "a2enconf NOT successful for ${CONF}"

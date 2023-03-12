@@ -1,14 +1,18 @@
 # DOCKER LAMP BY VERANET
+
 This docker contain a Linux Apache Mysql PHP enviroment
 (Other Language Soon)
 
 ## Prerequisites
+
 * [Docker V3](https://www.docker.com/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
 * [compose file v3](https://docs.docker.com/compose/compose-file/compose-file-v3/)
+
 ## Services
+
 * Apache2
-* PHP
+* PHP 7.4
 * Mysql-8.0
 * PhpMyAdmin
 * Mailhog
@@ -16,13 +20,19 @@ This docker contain a Linux Apache Mysql PHP enviroment
 * GITEA (MASTER BRANCH ONLY)
 
 ## Installation
+
     git clone https://github.com/AlexisVerquin/docker_lamp.git
     cd docker_lamp
 
 Rename or copy **.env.example** file to **.env**
 
 ## Usage
+
 Modify the variables in **.env**  according to your needs
+
+Build container
+
+    docker-compose build --no-cache --progress auto
 
 Start Docker and Detach
 
@@ -41,9 +51,11 @@ Stop all images
     docker stop $(docker ps -a -q)
 
 ## If you want get acces in terminal image
+
     sudo docker exec -it [name] /bin/bash
 
 ## If you want move docker root dir (Linux)
+
     ```
         # Stop Docker service to prevent any issue with race condition
         sudo service docker stop
